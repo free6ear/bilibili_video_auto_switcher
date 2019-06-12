@@ -2,7 +2,7 @@ from selenium import webdriver
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions
 from selenium.webdriver.common.by import By
-import re
+
 
 uploader = '美食作家王刚R'
 lst = []
@@ -30,7 +30,12 @@ if __name__ == '__main__':
         .until(expected_conditions.element_to_be_clickable((By.XPATH, '//*[@id="page-index"]/div[1]/div[1]/h3/a[2]')))
     more_button.click()
 
-    for link in driver.find_elements_by_xpath('//*[@id="submit-video-list"]'):
-        # if re.match(r'(.)*厨师长教你：(.)*', link.text):
-        #    lst.append(link.text)
-        print('*' * 20 + '\n' + link.text + '\n' + '*' * 20)
+    elements = driver.find_elements_by_xpath('//*[@id="submit-video-list"]/ul[2]')
+    for element in elements:
+        # av_id = element.get_attribute('data-aid')
+        # av_title = element.get_attribute('title')
+        className = element.get_attribute('src')
+        print(element.text)
+
+
+
