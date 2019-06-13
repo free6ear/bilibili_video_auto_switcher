@@ -2,16 +2,18 @@ from selenium import webdriver
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions
 from selenium.webdriver.common.by import By
-
+from selenium.common.exceptions import StaleElementReferenceException
+from time import sleep
 
 uploader = '美食作家王刚R'
-lst = []
+urls = []
 
-if __name__ == '__main__':
-    driver = webdriver.Chrome()
-    driver.maximize_window()
-    driver.implicitly_wait(30)
+driver = webdriver.Chrome()
+driver.maximize_window()
+driver.implicitly_wait(30)
 
+
+def get_url():
     driver.get('https://search.bilibili.com/')
 
     driver.find_element_by_id('search-keyword').send_keys(uploader)
@@ -30,12 +32,41 @@ if __name__ == '__main__':
         .until(expected_conditions.element_to_be_clickable((By.XPATH, '//*[@id="page-index"]/div[1]/div[1]/h3/a[2]')))
     more_button.click()
 
-    elements = driver.find_elements_by_xpath('//*[@id="submit-video-list"]/ul[2]')
+    sleep(3)
+
+    elements = driver.find_elements_by_partial_link_text('厨师长教你：')
+
     for element in elements:
-        # av_id = element.get_attribute('data-aid')
-        # av_title = element.get_attribute('title')
-        className = element.get_attribute('src')
-        print(element.text)
+        try:
+            urls.append(element.get_attribute('href'))
+        except StaleElementReferenceException:
+            pass
+        continue
+
+
+def iterative_play(driver, urls):
+    for url in urls:
+        #打开新的视频连接
+        js = 'window.open("' + url + '");'
+        driver.execute_script(js)
+
+        #切换到新窗口
+        windows = driver.window_handles
+        driver.switch_to.window(windows[-1])
+        driver.refresh()
+
+
+        sleep(100)
+
+
+if __name__ == '__main__':
+        get_url()
+        iterative_play(driver, urls)
+
+
+
+
+
 
 
 
